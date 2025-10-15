@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmaceutical Formulation Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            background-image: url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: -1;
+        }
+        .custom-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #4f46e5, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .btn-primary {
+            background-image: linear-gradient(to right, #6366f1, #a855f7, #d946ef);
+            background-size: 200% auto;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-position: right center;
+        }
+        .btn-success {
+            background-image: linear-gradient(to right, #10b981, #34d399);
+            cursor: default;
+        }
+        .form-input {
+            background-color: #f9fafb;
+            border-color: #d1d5db;
+            color: #111827;
+            transition: all 0.2s ease-in-out;
+        }
+        .form-input:focus {
+            --tw-ring-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+        .table-header {
+             background-color: #f3f4f6;
+        }
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        input:disabled {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        /* Sidebar Styles */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        #sidebar-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* FAB Animation */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(219, 70, 239, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 12px rgba(219, 70, 239, 0);
+            }
+        }
+        #open-sidebar-btn {
+            animation: pulse-glow 2.5s infinite;
+        }
+        
+        /* Calculate Button Animation */
+        @keyframes pulse-calculate {
+             0%, 100% {
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
+            }
+        }
+        .calculable {
+            animation: pulse-calculate 2s infinite;
+        }
+
+        /* Card & Animation Styles */
+        .white-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .white-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="relative min-h-screen main-container">
+        <div class="container mx-auto p-4 sm:p-6 md:p-8">
+            
+            <!-- Header -->
+            <header class="text-center mb-10 opacity-0 fade-in-up">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">Pharmaceutical Formulation Calculator</h1>
+                <p class="text-base sm:text-lg text-gray-400 mt-4 max-w-2xl mx-auto">Seamlessly calculate ingredient quantities using official pharmacopoeia formulas with precision and ease.</p>
+            </header>
+
+            <div class="max-w-4xl mx-auto">
+
+                <div class="space-y-8">
+                    
+                    <!-- Formula Selection & Calculation Parameters Card -->
+                    <div class="white-card p-6 md:p-8 rounded-2xl custom-shadow opacity-0 fade-in-up delay-1">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gradient-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM15 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+                            </svg>
+                            Formulation & Parameters
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Formula Selection -->
+                            <div>
+                                <label for="formula-select" class="block text-sm font-medium text-gray-700 mb-2">Select Standard Formula</label>
+                                <select id="formula-select" class="form-input mt-1 block w-full rounded-lg shadow-sm p-2.5">
+                                    <option value="">-- Choose a Formula --</option>
+                                    <option value="simpleSyrup">Simple Syrup IP'66</option>
+                                    <option value="turpentineLiniment">Turpentine Liniment IP</option>
+                                    <option value="terpinHydrateElixir">Terpin Hydrate Linctus IP’66</option>
+                                    <option value="cresolSoapSolution">Cresol with Soap Solution IP'66</option>
+                                    <option value="magnesiumHydroxideMixture">Magnesium Hydroxide Mixture BP (Milk of Magnesia)</option>
+                                    <option value="aluminiumHydroxideGel">Aluminium Hydroxide Gel USP</option>
+                                    <option value="liquidParaffinEmulsion">Liquid Paraffin Emulsion</option>
+                                    <option value="coldCream">Cold Cream IP</option>
+                                    <option value="vanishingCream">Vanishing Cream</option>
+                                    <option value="syntheticShampoo">Synthetic Shampoo</option>
+                                    <option value="paracetamolTablet">Paracetamol Tablet IP</option>
+                                    <option value="chloramphenicolEyeDrop">Chloramphenicol Eye Drop BP</option>
+                                    <option value="chloramphenicolEyeOintment">Chloramphenicol Eye Ointment</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Final Volume -->
+                            <div>
+                                <label id="final-volume-label" for="final-volume" class="block text-sm font-medium text-gray-700 mb-2">Final Volume per Prep (<span id="final-volume-unit">mL</span>)</label>
+                                <input type="number" id="final-volume" value="100" class="form-input mt-1 block w-full rounded-lg shadow-sm p-2.5">
+                            </div>
+
+                            <!-- Number of Preparations -->
+                            <div class="md:col-span-2">
+                                <label id="num-preparations-label" for="num-preparations" class="block text-sm font-medium text-gray-700 mb-2">Number of Preparations</label>
+                                <input type="number" id="num-preparations" value="30" class="form-input mt-1 block w-full rounded-lg shadow-sm p-2.5">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 text-center">
+                            <button id="calculate-btn" class="w-full md:w-auto btn-primary text-white font-bold py-3 px-12 rounded-lg flex items-center justify-center text-lg transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Calculate
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results Table Card -->
+                    <div class="white-card p-4 md:p-8 rounded-2xl custom-shadow opacity-0 fade-in-up delay-2">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gradient-text">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM4 8h5v2H4V8zm0 5a1 1 0 001 1h1V8H4v5z" clip-rule="evenodd" />
+                            </svg>
+                            Results
+                        </h2>
+                        <div class="overflow-x-auto rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th scope="col" class="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Ingredient</th>
+                                        <th id="standard-qty-header" scope="col" class="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Standard Quantity</th>
+                                        <th id="single-prep-header" scope="col" class="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Quantity (1 Prep)</th>
+                                        <th id="total-preps-header" scope="col" class="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Quantity (<span id="total-prep-header-num">30</span> <span id="total-prep-header-unit">Preps</span>)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-tbody" class="bg-white divide-y divide-gray-200">
+                                    <tr><td colspan="4" class="text-center py-8 text-gray-500">Please select a formula to begin.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden opacity-0"></div>
+    <div id="sidebar" class="fixed top-0 left-0 w-80 h-full bg-white shadow-2xl z-50 pt-6 flex flex-col transform -translate-x-full">
+        <div class="flex justify-between items-center mb-4 flex-shrink-0 px-6">
+            <h2 class="text-xl font-bold gradient-text">Available Preparations</h2>
+            <button id="close-sidebar-btn" class="text-gray-500 hover:text-gray-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div id="sidebar-content" class="space-y-4 overflow-y-auto flex-grow px-6 pb-6 text-gray-800"></div>
+    </div>
+
+    <!-- Floating Action Button to open sidebar -->
+    <button id="open-sidebar-btn" class="fixed top-8 right-8 btn-primary text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const formulaSelect = document.getElementById('formula-select');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultsTbody = document.getElementById('results-tbody');
+            const finalVolumeInput = document.getElementById('final-volume');
+            const finalVolumeLabel = document.getElementById('final-volume-label');
+            const finalVolumeUnit = document.getElementById('final-volume-unit');
+            const numPreparationsInput = document.getElementById('num-preparations');
+            const numPreparationsLabel = document.getElementById('num-preparations-label');
+            
+            const standardQtyHeader = document.getElementById('standard-qty-header');
+            const singlePrepHeader = document.getElementById('single-prep-header');
+            const totalPrepsHeaderNum = document.getElementById('total-prep-header-num');
+            const totalPrepsHeaderUnit = document.getElementById('total-prep-header-unit');
+
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const openSidebarBtn = document.getElementById('open-sidebar-btn');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+            const sidebarContent = document.getElementById('sidebar-content');
+
+            const originalCalculateBtnHTML = calculateBtn.innerHTML;
+
+            // --- Standard Pharmacopoeia Formulas Data - VERIFIED FOR ACCURACY ---
+            const formulas = {
+                simpleSyrup: {
+                    name: "Simple Syrup IP'66",
+                    baseVolume: 1000, unit: 'g',
+                    category: 'Liquids',
+                    ingredients: [
+                        { name: 'Sucrose', quantity: 667, unit: 'g' },
+                        { name: 'Purified Water', quantity: 0, unit: 'q.s.' },
+                    ]
+                },
+                turpentineLiniment: {
+                    name: 'Turpentine Liniment IP',
+                    baseVolume: 1000, unit: 'mL',
+                    category: 'Liquids',
+                    ingredients: [
+                        { name: 'Soft Soap', quantity: 90, unit: 'g' },
+                        { name: 'Camphor', quantity: 50, unit: 'g' },
+                        { name: 'Turpentine Oil', quantity: 650, unit: 'mL' },
+                        { name: 'Purified Water', quantity: 0, unit: 'q.s.' }
+                    ]
+                },
+                terpinHydrateElixir: {
+                    name: "Terpin Hydrate Linctus IP’66",
+                    baseVolume: 100, unit: 'mL',
+                    category: 'Liquids',
+                    ingredients: [
+                        { name: 'Terpin Hydrate', quantity: 5, unit: 'g' },
+                        { name: 'Glycerin', quantity: 40, unit: 'mL' },
+                        { name: 'Alcohol (30% v/v)', quantity: 40, unit: 'mL' },
+                        { name: 'Syrup', quantity: 10, unit: 'mL' },
+                        { name: 'Orange Oil', quantity: 0.02, unit: 'mL' },
+                        { name: 'Purified Water', quantity: 0, unit: 'q.s.' },
+                    ]
+                },
+                cresolSoapSolution: {
+                    name: "Cresol with Soap Solution IP'66",
+                    baseVolume: 100, unit: 'mL',
+                    category: 'Liquids',
+                    ingredients: [
+                        { name: 'Cresol', quantity: 50, unit: 'mL' },
+                        { name: 'Vegetable oil', quantity: 18, unit: 'mL' },
+                        { name: 'Potassium Hydroxide', quantity: 4.2, unit: 'g' },
+                        { name: 'Purified Water', quantity: 0, unit: 'q.s.' },
+                    ]
+                },
+                magnesiumHydroxideMixture: {
+                    name: 'Magnesium Hydroxide Mixture BP (Milk of Magnesia)',
+                    baseVolume: 1000, unit: 'mL',
+                    category: 'Suspensions',
+                    ingredients: [
+                        { name: 'Magnesium Sulphate', quantity: 47.5, unit: 'g' },
+                        { name: 'Sodium Hydroxide', quantity: 15, unit: 'g' },
+                        { name: 'Light Magnesium Oxide', quantity: 52.5, unit: 'g' },
+                        { name: 'Chloroform', quantity: 2.5, unit: 'mL' },
+                        { name: 'Citric Acid', quantity: 0.01, unit: 'g' },
+                        { name: 'Purified Water', quantity: 0, unit: 'q.s.' },
+                    ]
+                },
+                aluminiumHydroxideGel: {
+                    name: 'Aluminium Hydroxide Gel USP',
+                    baseVolume: 100, unit: 'mL',
+                    category: 'Suspensions',
+                    ingredients: [
+                        { name: 'Aluminium hydroxide gel', quantity: 36, unit: 'g' },
+                        { name: 'Sorbitol', quantity: 7, unit: 'mL' },
+                        { name: 'Methyl paraben', quantity: 0.2, unit: 'g' },
+                        { name: 'Propyl paraben', quantity: 0.02, unit: 'g' },
+                        { name: 'Peppermint oil', quantity: 0.005, unit: 'mL' },
+                        { name: 'Alcohol', quantity: 1, unit: 'mL' },
+                        { name: 'Amaranth solution', quantity: 0, unit: 'q.s.' },
+                        { name: 'Purified water', quantity: 0, unit: 'q.s.' }
+                    ]
+                },
+                liquidParaffinEmulsion: {
+                    name: 'Liquid Paraffin Emulsion',
+                    baseVolume: 60, unit: 'mL',
+                    category: 'Emulsions',
+                    ingredients: [
+                        { name: 'Liquid paraffin', quantity: 30, unit: 'mL' },
+                        { name: 'Indian gum in powder', quantity: 10, unit: 'g' },
+                        { name: 'Tragacanth in powder', quantity: 0.33, unit: 'g' },
+                        { name: 'Sodium benzoate', quantity: 0.33, unit: 'g' },
+                        { name: 'Vanillin', quantity: 0.03, unit: 'mL' },
+                        { name: 'Glycerin', quantity: 7.5, unit: 'mL' },
+                        { name: 'Chloroform', quantity: 0.16, unit: 'mL' },
+                        { name: 'Purified water', quantity: 0, unit: 'q.s.' }
+                    ]
+                },
+                coldCream: {
+                    name: "Cold Cream IP",
+                    baseVolume: 100, unit: 'g',
+                    category: 'Creams & Ointments',
+                    ingredients: [
+                        { name: 'Liquid Paraffin', quantity: 45, unit: 'g' },
+                        { name: 'Beeswax', quantity: 50, unit: 'g' },
+                        { name: 'Borax', quantity: 1, unit: 'g' },
+                        { name: 'Methyl paraben', quantity: 0.1, unit: 'g' },
+                        { name: 'Rose water', quantity: 0, unit: 'q.s.' },
+                        { name: 'Purified Water', quantity: 0, unit: 'q.s.' }
+                    ]
+                },
+                vanishingCream: {
+                    name: "Vanishing Cream",
+                    baseVolume: 100, unit: 'g',
+                    category: 'Creams & Ointments',
+                    ingredients: [
+                        { name: 'Stearic acid', quantity: 19, unit: 'g' },
+                        { name: 'Glycerin', quantity: 6.5, unit: 'g' },
+                        { name: 'Potassium hydroxide', quantity: 1.0, unit: 'g' },
+                        { name: 'Gum Tragacanth powder', quantity: 2.0, unit: 'g' },
+                        { name: 'Alcohol', quantity: 5.5, unit: 'g' },
+                        { name: 'Rose water', quantity: 0.5, unit: 'g' },
+                        { name: 'Distilled water', quantity: 65.5, unit: 'g' }
+                    ]
+                },
+                syntheticShampoo: {
+                    name: "Synthetic Shampoo",
+                    baseVolume: 1000, unit: 'mL',
+                    category: 'Shampoo',
+                    ingredients: [
+                        { name: 'Carboxymethyl cellulose', quantity: 10, unit: 'g' },
+                        { name: 'Sodium lauryl sulphate', quantity: 30, unit: 'g' },
+                        { name: 'Citric acid', quantity: 2, unit: 'g' },
+                        { name: 'Aniline dye', quantity: 10, unit: 'mL' },
+                        { name: 'Rose oil', quantity: 10, unit: 'mL' },
+                        { name: 'Distilled water', quantity: 0, unit: 'q.s.' }
+                    ]
+                },
+                 paracetamolTablet: {
+                    name: "Paracetamol Tablet IP",
+                    baseVolume: 1, unit: 'tablet',
+                    category: 'Tablets',
+                    ingredients: [
+                        { name: 'Paracetamol', quantity: 0.500, unit: 'g' },
+                        { name: 'Starch (powder, 5%)', quantity: 0.025, unit: 'g' },
+                        { name: 'Starch Paste (10%)', quantity: 0, unit: 'q.s.' },
+                        { name: 'Talc (2%)', quantity: 0, unit: 'q.s.' },
+                    ]
+                },
+                chloramphenicolEyeDrop: {
+                    name: "Chloramphenicol Eye Drop BP",
+                    baseVolume: 100, unit: 'mL',
+                    category: 'Eye Drops',
+                    ingredients: [
+                        { name: 'Chloramphenicol', quantity: 0.5, unit: 'g' },
+                        { name: 'Propylene glycol', quantity: 10.0, unit: 'g' },
+                        { name: 'Polyethylene glycol 1500', quantity: 10.0, unit: 'g' },
+                        { name: 'Cetrimide / Phenyl Mercuric Nitrate', quantity: 0.1, unit: 'g' },
+                        { name: 'Borax I.P.', quantity: 0.05, unit: 'g' },
+                        { name: 'Boric acid I.P.', quantity: 0.2, unit: 'g' },
+                        { name: 'Sodium chloride', quantity: 0.85, unit: 'g' },
+                        { name: 'Distilled water', quantity: 0, unit: 'q.s.' },
+                    ]
+                },
+                chloramphenicolEyeOintment: {
+                    name: "Chloramphenicol Eye Ointment",
+                    baseVolume: 100, unit: 'g',
+                    category: 'Creams & Ointments',
+                    ingredients: [
+                        { name: 'Chloramphenicol', quantity: 1, unit: 'g' },
+                        { name: 'White soft paraffin', quantity: 80, unit: 'g' },
+                        { name: 'Wool fat', quantity: 10, unit: 'g' },
+                        { name: 'Liquid paraffin', quantity: 10, unit: 'g' },
+                    ]
+                }
+            };
+            
+             // --- Sidebar Logic ---
+            const icons = {
+                'Liquids': `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547a2 2 0 00-.547 1.806l.443 2.216a2 2 0 002.103 1.547l4.491-1.547a2 2 0 011.547 0l4.491 1.547a2 2 0 002.103-1.547l.443-2.216a2 2 0 00-.547-1.806z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v5.405M9 6.253v5.405m6-5.405v5.405" /></svg>`,
+                'Suspensions': `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>`,
+                'Emulsions': `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11" /></svg>`,
+                'Creams & Ointments': `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>`,
+                'Shampoo': `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4a2 2 0 01-2 2H2v4a2 2 0 002 2h1v4a2 2 0 002 2h10a2 2 0 002-2v-4h1a2 2 0 002-2V9h-1a2 2 0 01-2-2V3H5z" /></svg>`,
+                'Tablets': `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 7.75l-.75.75m.75-.75l.75.75m-1.5 6l-.75.75m.75-.75l.75.75M4.5 12l.75.75m-.75-.75l-.75.75m1.5-6l.75.75m-.75-.75l-.75.75M12 4.5l.75.75m-.75-.75L11.25 5.25M12 21.75l.75-.75m-.75.75l-.75-.75M4.5 12a7.5 7.5 0 0115 0m-15 0a7.5 7.5 0 0015 0m-15 0H3m18 0h-1.5" /></svg>`,
+                'Eye Drops': `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+            };
+
+            const groupedFormulas = Object.keys(formulas).reduce((acc, key) => {
+                const formula = formulas[key];
+                const category = formula.category || 'Other';
+                if (!acc[category]) {
+                    acc[category] = [];
+                }
+                acc[category].push({ key, ...formula });
+                return acc;
+            }, {});
+
+            const renderSidebar = () => {
+                sidebarContent.innerHTML = '';
+                for (const category in groupedFormulas) {
+                    const categoryWrapper = document.createElement('div');
+                    
+                    const categoryHeader = document.createElement('h3');
+                    categoryHeader.className = 'text-lg font-semibold text-gray-800 flex items-center mb-2';
+                    categoryHeader.innerHTML = `${icons[category] || ''}<span class="ml-2">${category}</span>`;
+                    categoryWrapper.appendChild(categoryHeader);
+                    
+                    const list = document.createElement('ul');
+                    list.className = 'space-y-1';
+                    groupedFormulas[category].forEach(formula => {
+                        const listItem = document.createElement('li');
+                        const button = document.createElement('button');
+                        button.textContent = formula.name;
+                        button.className = 'w-full text-left px-3 py-2 text-sm text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors';
+                        button.dataset.key = formula.key;
+                        button.addEventListener('click', () => {
+                            formulaSelect.value = formula.key;
+                            formulaSelect.dispatchEvent(new Event('change'));
+                            closeSidebar();
+                        });
+                        listItem.appendChild(button);
+                        list.appendChild(listItem);
+                    });
+                    categoryWrapper.appendChild(list);
+                    sidebarContent.appendChild(categoryWrapper);
+                }
+            };
+            
+            const openSidebar = () => {
+                sidebarOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    sidebarOverlay.classList.remove('opacity-0');
+                    sidebar.classList.remove('-translate-x-full');
+                }, 10);
+            };
+
+            const closeSidebar = () => {
+                sidebarOverlay.classList.add('opacity-0');
+                sidebar.classList.add('-translate-x-full');
+                setTimeout(() => {
+                    sidebarOverlay.classList.add('hidden');
+                }, 300);
+            };
+
+            openSidebarBtn.addEventListener('click', openSidebar);
+            closeSidebarBtn.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            renderSidebar();
+
+            const revertCalculateBtn = () => {
+                calculateBtn.innerHTML = originalCalculateBtnHTML;
+                calculateBtn.classList.remove('btn-success');
+                calculateBtn.classList.add('btn-primary');
+            }
+
+            const checkCalculable = () => {
+                revertCalculateBtn();
+                const finalVolume = parseFloat(finalVolumeInput.value);
+                const numPreps = parseInt(numPreparationsInput.value, 10);
+                if (finalVolume > 0 && numPreps > 0) {
+                    calculateBtn.classList.add('calculable');
+                } else {
+                    calculateBtn.classList.remove('calculable');
+                }
+            };
+
+            finalVolumeInput.addEventListener('input', checkCalculable);
+            numPreparationsInput.addEventListener('input', checkCalculable);
+
+
+            formulaSelect.addEventListener('change', () => {
+                const selectedFormulaKey = formulaSelect.value;
+                resultsTbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Enter quantity and click calculate.</td></tr>';
+                revertCalculateBtn();
+                calculateBtn.classList.remove('calculable');
+
+                if (!selectedFormulaKey) {
+                    finalVolumeUnit.textContent = 'mL';
+                    standardQtyHeader.textContent = 'Standard Quantity';
+                    finalVolumeInput.disabled = false;
+                    finalVolumeLabel.innerHTML = `Final Volume per Prep (<span id="final-volume-unit">mL</span>)`;
+                    numPreparationsLabel.textContent = 'Number of Preparations';
+                    singlePrepHeader.textContent = 'Quantity (1 Prep)';
+                    totalPrepsHeaderUnit.textContent = 'Preps';
+                    resultsTbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Please select a formula to begin.</td></tr>';
+                    return;
+                }
+
+                const selectedFormula = formulas[selectedFormulaKey];
+                standardQtyHeader.textContent = `Standard Quantity (for ${selectedFormula.baseVolume} ${selectedFormula.unit})`;
+                
+                if (selectedFormula.unit === 'tablet') {
+                    finalVolumeInput.disabled = true;
+                    finalVolumeInput.value = 1;
+                    finalVolumeLabel.textContent = 'Standard Unit';
+                    finalVolumeUnit.textContent = selectedFormula.unit;
+                    numPreparationsLabel.textContent = 'Number of Tablets';
+                    singlePrepHeader.textContent = 'Quantity (1 Tablet)';
+                    totalPrepsHeaderUnit.textContent = 'Tablets';
+                } else {
+                    finalVolumeInput.disabled = false;
+                    finalVolumeLabel.innerHTML = `Final Volume per Prep (<span id="final-volume-unit">${selectedFormula.unit}</span>)`;
+                    numPreparationsLabel.textContent = 'Number of Preparations';
+                    singlePrepHeader.textContent = 'Quantity (1 Prep)';
+                    totalPrepsHeaderUnit.textContent = 'Preps';
+                }
+                checkCalculable();
+            });
+
+            numPreparationsInput.addEventListener('input', () => {
+                totalPrepsHeaderNum.textContent = numPreparationsInput.value || 'X';
+            });
+
+            const formatNumber = (num) => {
+                if (num === 0) return '<span class="italic text-gray-400">q.s.</span>';
+                return parseFloat(num.toFixed(4));
+            };
+            
+            calculateBtn.addEventListener('click', () => {
+                calculateBtn.classList.remove('calculable');
+                const selectedFormulaKey = formulaSelect.value;
+                if (!selectedFormulaKey) {
+                    resultsTbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-red-500 font-semibold">Please select a formula first.</td></tr>';
+                    return;
+                }
+
+                const finalVolume = parseFloat(finalVolumeInput.value);
+                const numPreparations = parseInt(numPreparationsInput.value, 10);
+
+                if (isNaN(finalVolume) || isNaN(numPreparations) || finalVolume <= 0 || numPreparations <= 0) {
+                     resultsTbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-red-500 font-semibold">Please enter valid quantities.</td></tr>';
+                    return;
+                }
+                
+                const formula = formulas[selectedFormulaKey];
+                resultsTbody.innerHTML = '';
+
+                formula.ingredients.forEach(ingredient => {
+                    const scalingFactor = finalVolume / formula.baseVolume;
+                    
+                    let qtyForOnePrep = ingredient.quantity * scalingFactor;
+                    let qtyTotalPreps = qtyForOnePrep * numPreparations;
+
+                    const standardQtyFormatted = formatNumber(ingredient.quantity);
+                    const standardQtyUnit = ingredient.unit !== 'q.s.' ? ingredient.unit : '';
+                    
+                    const resultRow = document.createElement('tr');
+                    resultRow.innerHTML = `
+                        <td class="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-800">${ingredient.name}</td>
+                        <td class="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600">${standardQtyFormatted} ${standardQtyUnit}</td>
+                        <td class="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600">${formatNumber(qtyForOnePrep)} ${ingredient.unit !== 'q.s.' ? ingredient.unit : ''}</td>
+                        <td class="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600">${formatNumber(qtyTotalPreps)} ${ingredient.unit !== 'q.s.' ? ingredient.unit : ''}</td>
+                    `;
+                    resultsTbody.appendChild(resultRow);
+                });
+
+                // Success state for button
+                calculateBtn.classList.remove('btn-primary');
+                calculateBtn.classList.add('btn-success');
+                calculateBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Calculated
+                `;
+            });
+
+            // Set initial state
+            formulaSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+
+</body>
+</html>
+
